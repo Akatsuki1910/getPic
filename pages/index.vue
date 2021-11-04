@@ -17,7 +17,6 @@ import { $axios } from '~/utils/api'
 @Component({})
 export default class Index extends Vue {
   data: string[] = []
-  set: Set<string> = new Set()
   nowCount: number = 0
   allLength: number = 0
   inputURL = 'https://qiita.com'
@@ -29,25 +28,32 @@ export default class Index extends Vue {
 
   async getData(url: string) {
     this.isProcessing = true
+    let allArr: string[] = []
 
     const d = await $axios.$get('/api/getText', { params: { url } })
-    const urlRegexp = /https?:\/\/[^"']+/g
-    const t = [...d.matchAll(urlRegexp)]
+    const urlRegexp = /https?:\/\/[\w/:%#$&?()~.=+-]+/g
+    allArr = allArr.concat([...d.matchAll(urlRegexp)].map((arr) => arr[0]))
 
-    this.allLength = t.length
+    const urlRegexp2 = /\/[\w/:%#$&?()~.=+-]+/g
+    allArr = allArr.concat(
+      [...d.matchAll(urlRegexp2)].map((arr) => url + arr[0]),
+    )
+
+    const urlRegexp3 = /\/\/[\w/:%#$&?()~.=+-]+/g
+    allArr = allArr.concat(
+      [...d.matchAll(urlRegexp3)].map((arr) => 'https:' + arr[0]),
+    )
+
+    const set = new Set(allArr)
+
+    this.allLength = set.size
     this.nowCount = 0
-    this.set = new Set()
     this.data = []
 
-    for (const arr of t) {
-      const url = arr[0]
-      await this.loadImage(url)
+    for (const u of Array.from(set)) {
+      await this.loadImage(u)
       this.nowCount++
     }
-
-    this.set.forEach((v) => {
-      this.data.push(v)
-    })
 
     this.isProcessing = false
   }
@@ -56,7 +62,7 @@ export default class Index extends Vue {
     return await new Promise<void>((resolve) => {
       const img = new Image()
       img.onload = () => {
-        this.set.add(src)
+        this.data.push(src)
         resolve()
       }
       img.onerror = () => {
