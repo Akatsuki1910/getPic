@@ -30,19 +30,22 @@ export default class Index extends Vue {
     this.isProcessing = true
     let allArr: string[] = []
 
+    const address = url.match(/https?:\/\/[^/]+\//)![0]
+
     const d = await $axios.$get('/api/getText', { params: { url } })
-    const urlRegexp = /https?:\/\/[\w/:%#$&?()~.=+-]+/g
-    allArr = allArr.concat([...d.matchAll(urlRegexp)].map((arr) => arr[0]))
 
-    const urlRegexp2 = /\/[\w/:%#$&?()~.=+-]+/g
-    allArr = allArr.concat(
-      [...d.matchAll(urlRegexp2)].map((arr) => url + arr[0]),
-    )
+    const obj = [
+      { front: '', regexp: /https?:\/\/[\w/:%#$&?()~.=+-]+/g },
+      { front: url, regexp: /\/[\w/:%#$&?()~.=+-]+/g },
+      { front: address, regexp: /\/[\w/:%#$&?()~.=+-]+/g },
+      { front: 'https:', regexp: /\/\/[\w/:%#$&?()~.=+-]+/g },
+    ]
 
-    const urlRegexp3 = /\/\/[\w/:%#$&?()~.=+-]+/g
-    allArr = allArr.concat(
-      [...d.matchAll(urlRegexp3)].map((arr) => 'https:' + arr[0]),
-    )
+    obj.forEach((o) => {
+      allArr = allArr.concat(
+        [...d.matchAll(o.regexp)].map((arr) => o.front + arr[0]),
+      )
+    })
 
     const set = new Set(allArr)
 
