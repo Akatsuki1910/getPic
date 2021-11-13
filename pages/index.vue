@@ -30,7 +30,7 @@ export default class Index extends Vue {
     this.isProcessing = true
     let allArr: string[] = []
 
-    const address = url.match(/https?:\/\/[^/]+\//)![0]
+    const address = url.match(/https?:\/\/[^/]+\//)!
 
     const d = await $axios.$get('/api/getText', { params: { url } })
 
