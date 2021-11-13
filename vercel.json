@@ -6,7 +6,8 @@
 			"use": "@nuxtjs/vercel-builder",
 			"config": {
 				"serverFiles": [
-					"package.json"
+					"package.json",
+          "api/**"
         ],
         "tscOptions": {
           "sourceMap": false
