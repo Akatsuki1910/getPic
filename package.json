@@ -16,9 +16,9 @@
     "*.{ts,vue}": "yarn lint:ts"
   },
   "dependencies": {
-    "chrome-aws-lambda": "^10.1.0",
     "express": "^4.17.1",
-    "puppeteer-core": "10.1.0"
+    "playwright-aws-lambda": "^0.7.0",
+    "playwright-core": "^1.16.3"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.14.7",
@@ -40,7 +40,6 @@
     "pug": "3.0.2",
     "pug-loader": "^2.4.0",
     "pug-plain-loader": "^1.1.0",
-    "puppeteer": "^11.0.0",
     "sass": "^1.43.4",
     "sass-loader": "10.2.0",
     "stylelint": "^13.13.1",
