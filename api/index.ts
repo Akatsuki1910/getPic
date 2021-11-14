@@ -3,7 +3,6 @@ const playwright = require(process.env.AWS_LAMBDA_FUNCTION_VERSION
   ? 'playwright-aws-lambda'
   : 'playwright-core')
 
-// import playwright from 'playwright-aws-lambda'
 const app: express.Express = express()
 
 app.get('/getText', async (req: express.Request, res: express.Response) => {
