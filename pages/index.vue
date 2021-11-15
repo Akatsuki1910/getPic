@@ -1,10 +1,10 @@
 <template lang="pug">
   div
-    div
+    header.header
       input(type="text" v-model="inputURL")
       button(@click="clickButton" :disabled="isProcessing") get
-      | {{nowCount}}/{{allLength}}
-    div
+      .dl-parcent {{dlInfo}}
+    main.main
       div(v-for="(pic,i) in data" :key="i").img-box
         a(:href="pic" target="_blank")
           img(:src="pic").img
@@ -22,6 +22,10 @@ export default class Index extends Vue {
   inputURL = 'https://qiita.com'
   isProcessing = false
 
+  get dlInfo() {
+    return this.nowCount / this.allLength
+  }
+
   clickButton() {
     this.getData(this.inputURL)
   }
@@ -30,12 +34,12 @@ export default class Index extends Vue {
     this.isProcessing = true
     let allArr: string[] = []
 
-    const address = url.match(/https?:\/\/[^/]+\//)!
+    const address = url.match(/https?:\/\/[^/]+\//i)!
 
     const d = await $axios.$get('/api/getText', { params: { url } })
 
     const obj = [
-      { front: '', regexp: /https?:\/\/[\w/:%#$&?()~.=+-]+/g },
+      { front: '', regexp: /https?:\/\/[\w/:%#$&?()~.=+-]+/gi },
       { front: url, regexp: /\/[\w/:%#$&?()~.=+-]+/g },
       { front: address, regexp: /\/[\w/:%#$&?()~.=+-]+/g },
       { front: 'https:', regexp: /\/\/[\w/:%#$&?()~.=+-]+/g },
@@ -47,15 +51,16 @@ export default class Index extends Vue {
       )
     })
 
-    const set = new Set(allArr)
+    const imgURL = Array.from(new Set(allArr)).filter(
+      (url: string) => !/\.(js|css|html)$/.test(url),
+    )
 
-    this.allLength = set.size
+    this.allLength = imgURL.length
     this.nowCount = 0
     this.data = []
 
-    for (const u of Array.from(set)) {
+    for (const u of imgURL) {
       await this.loadImage(u)
-      this.nowCount++
     }
 
     this.isProcessing = false
@@ -66,9 +71,11 @@ export default class Index extends Vue {
       const img = new Image()
       img.onload = () => {
         this.data.push(src)
+        this.nowCount++
         resolve()
       }
       img.onerror = () => {
+        this.allLength--
         resolve()
       }
       img.src = src
@@ -78,19 +85,40 @@ export default class Index extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 1.5rem;
+  width: 100vh;
+  background-color: white;
+  z-index: 100;
+
+  .dl-parcent {
+    margin-left: 8px;
+    display: inline-block;
+  }
+}
+
+.main {
+  padding-top: 1.5rem;
+}
+
 .img-box {
   display: inline-block;
   position: relative;
   width: 200px;
   height: 200px;
-}
 
-.img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 100%;
-  height: auto;
+  .img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+  }
 }
 </style>

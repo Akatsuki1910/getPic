@@ -11,7 +11,7 @@ app.get('/getText', async (req: express.Request, res: express.Response) => {
         channel: 'chrome',
         headless: true,
       })
-    : await playwright.chromium.launch({ channel: 'chrome', headless: false })
+    : await playwright.chromium.launch({ channel: 'chrome', headless: true })
   const context = await browser.newContext()
   const page = await context.newPage()
   const webData = await page.goto(req.query.url as string)
