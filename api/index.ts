@@ -14,8 +14,9 @@ app.get('/getText', async (req: express.Request, res: express.Response) => {
     : await playwright.chromium.launch({ channel: 'chrome', headless: true })
   const context = await browser.newContext()
   const page = await context.newPage()
-  await page.waitForTimeout(20000)
-  const webData = await page.goto(req.query.url as string)
+  const webData = await page.goto(req.query.url as string, {
+    waitUntil: 'networkidle',
+  })
   const text = await webData!.text()
   await browser.close()
   res.send(text)
